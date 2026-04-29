@@ -125,7 +125,21 @@ public class MyGraph<Ttype>{
 		}
 		
 		for(int i = 0; i < howManyElements; i++) {
-			System.out.println(vertices[i].toString());//toString no MyVerticeNode
+			System.out.print(vertices[i].getElement()+ ": ");
+			MyEdgeNode currentNode = vertices[i].getFirstEdgeNode();
+			while(currentNode != null){
+				int indexVerticeTo = currentNode.getIndexOfVerticeTo();
+				System.out.print(">" + vertices[indexVerticeTo].getElement() + " ---" + currentNode.getWeight());
+				currentNode = currentNode.getNextEdgeNode();//toString no MyVerticeNode
+			}
+			System.out.println();
+		}
+	}
+	public void remove(Ttype element) throws Exception{
+		if(isEmpty()) {
+			throw new Exception("Nav ko dzēst");
+		}else {
+			element = null;
 		}
 	}
 
