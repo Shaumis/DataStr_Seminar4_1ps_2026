@@ -1,146 +1,196 @@
 package datastr;
 
-public class MyGraph<Ttype>{
+import java.lang.reflect.Array;
+import java.util.ArrayList;
+import java.util.Stack;
+
+public class MyGraph<Ttype> {
 	private MyVerticeNode<Ttype>[] vertices;
 	private final int DEFAULT_SIZE = 5;
 	private int size = DEFAULT_SIZE;
 	private int howManyElements = 0;
-	
-	public int getHowManyElements()
-	{
+
+	public int getHowManyElements() {
 		return howManyElements;
 	}
-	
+
 	public MyGraph() {
 		vertices = new MyVerticeNode[size];
 	}
-	
+
 	public MyGraph(int inputSize) {
-		if(inputSize > 0 && inputSize < 1000) {
+		if (inputSize > 0 && inputSize < 1000) {
 			size = inputSize;
 		}
-		
+
 		vertices = new MyVerticeNode[size];
 	}
-	
-	
+
 	public boolean isEmpty() {
 		return (howManyElements == 0);
 	}
-	
+
 	public boolean isFull() {
 		return (howManyElements == size);
 	}
-	
+
 	private void resize() {
-		int newSize = (size <= 100) ? (size * 2) : ((int)(size*1.5));
-		
+		int newSize = (size <= 100) ? (size * 2) : ((int) (size * 1.5));
+
 		MyVerticeNode<Ttype>[] newVertices = new MyVerticeNode[newSize];
-		
-		for(int i = 0; i < howManyElements; i++) {
+
+		for (int i = 0; i < howManyElements; i++) {
 			newVertices[i] = vertices[i];
 		}
 		size = newSize;
 		vertices = newVertices;
 		System.gc();
-		
+
 	}
-	
-	
-	public void addVertice(Ttype element) throws Exception{
-		if(element == null) {
+
+	public void addVertice(Ttype element) throws Exception {
+		if (element == null) {
 			throw new Exception("Elements nevar būt bez references");
 		}
-		
-		for(int i = 0; i < howManyElements; i++) {
-			if(vertices[i].getElement().equals(element)) {
+
+		for (int i = 0; i < howManyElements; i++) {
+			if (vertices[i].getElement().equals(element)) {
 				throw new Exception("Tad elements jau eksistē grafā. To nevar pievienot atkārtoti");
 			}
 		}
-		
-		if(isFull())
-		{
+
+		if (isFull()) {
 			resize();
 		}
-		
-		MyVerticeNode newVerticeNode =  new MyVerticeNode(element);
+
+		MyVerticeNode newVerticeNode = new MyVerticeNode(element);
 		vertices[howManyElements] = newVerticeNode;
 		howManyElements++;
-		
+
 	}
-	
-	
-	public void addEdge(Ttype elementFrom, Ttype elementTo, int weight) 
-			throws Exception
-	{
-		if(elementFrom == null || elementTo == null || weight <= 0)
-		{
+
+	public void addEdge(Ttype elementFrom, Ttype elementTo, int weight) throws Exception {
+		if (elementFrom == null || elementTo == null || weight <= 0) {
 			throw new Exception("Kāds no ievades parametriem nav atbilstošs");
 		}
-		
-		int indexOfElementFrom = findVertice(elementFrom);		
+
+		int indexOfElementFrom = findVertice(elementFrom);
 		int indexOfElementTo = findVertice(elementTo);
 
 		MyEdgeNode newEdge = new MyEdgeNode(indexOfElementTo, weight);
-		
+
 		MyVerticeNode verticeNodeFrom = vertices[indexOfElementFrom];
-		//noskaidrojam, vai edgeNOde būs kā pirmais
-		if(verticeNodeFrom.getFirstEdgeNode() == null) {
+		// noskaidrojam, vai edgeNOde būs kā pirmais
+		if (verticeNodeFrom.getFirstEdgeNode() == null) {
 			verticeNodeFrom.setFirstEdgeNode(newEdge);
 		}
-		//vai tas ir kārtejais edgeNode objekts, aks pielipinats saistītajā pierakstā
-		else
-		{
+		// vai tas ir kārtejais edgeNode objekts, aks pielipinats saistītajā pierakstā
+		else {
 			MyEdgeNode currentNode = verticeNodeFrom.getFirstEdgeNode();
-			//TODO ja vēlas, tad var optimizet un vinemēr likt kā pirmo, pie kura pielpina iepriekšējo pirmo
-			while(currentNode.getNextEdgeNode() != null) {
+			// TODO ja vēlas, tad var optimizet un vinemēr likt kā pirmo, pie kura pielpina
+			// iepriekšējo pirmo
+			while (currentNode.getNextEdgeNode() != null) {
 				currentNode = currentNode.getNextEdgeNode();
 			}
-			
+
 			currentNode.setNextEdgeNode(newEdge);
-			
+
 		}
-		
+
 	}
-	
-	
-	private int findVertice(Ttype element) throws Exception{
-		if(element == null) {
+
+	private int findVertice(Ttype element) throws Exception {
+		if (element == null) {
 			throw new Exception("Elements nevar būt bez references");
 		}
-		
-		for(int i = 0; i < howManyElements; i++) {
-			if(vertices[i].getElement().equals(element)) {
-				return i;//i -> atrastas pilsetas indekss masīvā
+
+		for (int i = 0; i < howManyElements; i++) {
+			if (vertices[i].getElement().equals(element)) {
+				return i;// i -> atrastas pilsetas indekss masīvā
 			}
 		}
-		
+
 		throw new Exception("Meklētā virsotne nav atrasta");
-		
+
 	}
-	
-	public void print() throws Exception{
-		if(isEmpty()) {
+
+	public void print() throws Exception {
+		if (isEmpty()) {
 			throw new Exception("Grafs ir tukšs un to nevar izprintēt");
 		}
-		
-		for(int i = 0; i < howManyElements; i++) {
-			System.out.print(vertices[i].getElement()+ ": ");
+
+		for (int i = 0; i < howManyElements; i++) {
+			System.out.print(vertices[i].getElement() + ": ");
 			MyEdgeNode currentNode = vertices[i].getFirstEdgeNode();
-			while(currentNode != null){
+			while (currentNode != null) {
 				int indexVerticeTo = currentNode.getIndexOfVerticeTo();
 				System.out.print(">" + vertices[indexVerticeTo].getElement() + " ---" + currentNode.getWeight());
-				currentNode = currentNode.getNextEdgeNode();//toString no MyVerticeNode
+				currentNode = currentNode.getNextEdgeNode();// toString no MyVerticeNode
 			}
 			System.out.println();
 		}
 	}
-	public void remove(Ttype element) throws Exception{
-		if(isEmpty()) {
+
+	public void remove(Ttype element) throws Exception {
+		if (isEmpty()) {
 			throw new Exception("Nav ko dzēst");
-		}else {
+		} else {
 			element = null;
 		}
 	}
 
+	private void setAllVerticesToIsVisitedFalse() {
+		for (int i = 0; i < howManyElements; i++) {
+			vertices[i].setVisited(false);
+		}
+	}
+
+	private ArrayList<MyVerticeNode> getAllNeighbours(int indexOfVertice) {
+		MyVerticeNode<Ttype> verticeFrom = vertices[indexOfVertice];
+		ArrayList<MyVerticeNode> allNeighbours = new ArrayList<MyVerticeNode>();
+		MyEdgeNode currentEdgeNode = verticeFrom.getFirstEdgeNode();
+		while (currentEdgeNode != null) {
+			int indexOfNeighbour = currentEdgeNode.getIndexOfVerticeTo();
+			MyVerticeNode neighbour = vertices[indexOfNeighbour];
+			allNeighbours.add(neighbour);
+			currentEdgeNode = currentEdgeNode.getNextEdgeNode();
+		}
+		return allNeighbours;
+	}
+
+	public String getPath(Ttype elementFrom, Ttype elementTo) throws Exception {
+		if (isEmpty()) {
+			throw new Exception("Nu UH");
+		}
+		if (elementFrom == null || elementTo == null) {
+			throw new Exception("lmao");
+		}
+		int indexOfElementFrom = findVertice(elementFrom);
+		int indexOfElementTo = findVertice(elementTo);
+
+		setAllVerticesToIsVisitedFalse();
+		boolean isPath = false;
+
+		Stack<MyVerticeNode> stack = new Stack<MyVerticeNode>();
+		stack.push(vertices[indexOfElementFrom]);
+		String path = "";
+		do {
+			MyVerticeNode verticeTemp = stack.pop();
+			if (verticeTemp.getElement().equals(elementTo)) {
+				path += "> " + verticeTemp.getElement();
+				isPath = true;
+			} else {
+				path += "> " + verticeTemp.getElement();
+				ArrayList<MyVerticeNode> neighbours = getAllNeighbours(index);
+				for (MyVerticeNode tempV : neighbours) {
+					if (!tempV.isVisited()) {
+						stack.push(tempV);
+					}
+				}
+			}
+		} while (!stack.isEmpty() && !isPath);
+		if (!isPath) {
+			path = "Ceļš no " + elementFrom + elementTo;
+		}
+	}
 }
